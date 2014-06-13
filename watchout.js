@@ -2,7 +2,8 @@
 
 var width = 500,
     height = 500,
-    radius = 10;
+    radius = 10,
+    enemyCount = 30;
 
 var randomLocation = function() {
   var spot = {};
@@ -26,9 +27,19 @@ var buildEnemies = function(n) {
 
 };
 
+var enemies = buildEnemies(enemyCount);
+
 var updateEnemies = function(data) {
   var enemies = svg.selectAll("circle")
-    .data(data);
+    .data(data)
+    .attr("r", 10)
+    .attr("class", "enemy")
+    .attr("cy", function(d, i) {
+      return randomLocation().y
+    })
+    .attr("cx", function(d, i) {
+      return randomLocation().x
+    });
 
 
   enemies.enter().append("circle")
@@ -43,4 +54,10 @@ var updateEnemies = function(data) {
 
 };
 
-updateEnemies(buildEnemies(30));
+updateEnemies(enemies);
+setInterval(function () {
+  updateEnemies(enemies);
+}, 1000);
+
+
+
