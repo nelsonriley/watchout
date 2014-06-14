@@ -17,11 +17,7 @@ var svg = d3.select(".gameboard").append("svg")
     .attr("height", height)
   .append("g");
 
-// svg.append("circle")
-//   .attr("r", 10)
-//   .attr("class", "enemy")
-//   .attr("cx", 20)
-//   .attr("cy", 20);
+
 
 var buildEnemies = function(n) {
 
@@ -35,7 +31,7 @@ var buildEnemies = function(n) {
 
 var updateEnemies = function(data) {
   // Join new data with old elements, if any
-  var enemies = svg.selectAll("circle")
+  var enemies = svg.selectAll(".enemy")
     .data(data);
 
   // update
@@ -50,6 +46,7 @@ var updateEnemies = function(data) {
   // add new
   // elements with data but without dom node
   enemies.enter().append("circle")
+    .attr("fill", "black")
     .attr("r", 10)
     .attr("class", "enemy")
     .attr("cx", function(d, i) {
@@ -60,6 +57,31 @@ var updateEnemies = function(data) {
     });
 
 };
+
+svg.append("circle")
+  .attr("fill", "orange")
+  .attr("r", 10)
+  .attr("class", "player")
+  .attr("cx", 250)
+  .attr("cy", 250);
+
+
+var dragPlayer = function(d , i) {
+  // this is a plain html element
+  d.x += d3.event.dx;
+  d.y += d3.event.dy;
+  d3.select(this).attr("cx", d.x).attr("cy", d.y);
+};
+
+var drag = d3.behavior.drag();
+
+drag.on("drag", dragPlayer);
+
+var player = svg.selectAll(".player");
+
+player.call(drag);
+player.data([{x: 250, y: 250}]);
+
 
 updateEnemies(buildEnemies(enemyCount));
 setInterval(function () {
