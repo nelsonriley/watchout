@@ -3,6 +3,7 @@
 var width = 500,
     height = 500,
     radius = 10,
+    explosionRadius = 100;
     enemyCount = 20;
 
 var randomLocation = function() {
@@ -17,6 +18,36 @@ var svg = d3.select(".gameboard").append("svg")
     .attr("width", width)
     .attr("height", height)
   .append("g");
+
+// setup image patterns
+svg.append("defs").append("pattern")
+    .attr("id", "shuriken")
+    .attr("height", radius*2)
+    .attr("width", radius*2)
+    .attr("patternUnits", "objectBoundingBox")
+  .append("image")
+    .attr("xlink:href", "img/Shuriken.png")
+    .attr("height", radius*2)
+    .attr("width", radius*2);
+svg.append("defs").append("pattern")
+    .attr("id", "ninja")
+    .attr("height", radius*2)
+    .attr("width", radius*2)
+    .attr("patternUnits", "objectBoundingBox")
+  .append("image")
+    .attr("id", "ninjaImg")
+    .attr("xlink:href", "img/NinjaBird.png")
+    .attr("height", radius*2)
+    .attr("width", radius*2);
+svg.append("defs").append("pattern")
+    .attr("id", "explosion")
+    .attr("height", radius*2)
+    .attr("width", radius*2)
+    .attr("patternUnits", "objectBoundingBox")
+  .append("image")
+    .attr("xlink:href", "img/Explosion.png")
+    .attr("height", radius*2)
+    .attr("width", radius*2);
 
 // set up the enemy data
 var buildEnemies = function(n) {
@@ -45,7 +76,7 @@ var updateEnemies = function(data) {
   // add new
   // elements with data but without dom node
   enemies.enter().append("circle")
-    .attr("fill", "black")
+    .attr("fill", "url(#shuriken)")
     .attr("r", radius)
     .attr("class", "enemy")
     .attr("cx", function(d, i) {
@@ -59,7 +90,7 @@ var updateEnemies = function(data) {
 
 // add player to board
 svg.append("circle")
-  .attr("fill", "orange")
+  .attr("fill", "url(#ninja)")
   .attr("r", radius)
   .attr("class", "player")
   .attr("cx", 250)
@@ -121,6 +152,7 @@ var currentScoreD3 = d3.selectAll('.current span');
 var collisionCountD3 = d3.selectAll('.collisions span');
 
 var collisionDetected = function() {
+  collisionAnimation();
   collisionCount++;
   collisionCountD3.text(collisionCount);
   if(currentScore > highScore){
@@ -135,6 +167,53 @@ setInterval(function() {
   currentScore++;
   currentScoreD3.text(currentScore);
 }, 300);
+
+// animate collision
+var collisionAnimation = function() {
+
+  var halfTime = 250;
+
+  // update player then explode
+  d3.select('#ninjaImg')
+    .attr("xlink:href", "img/Explosion.png");
+  player
+    .transition()
+      .duration(halfTime)
+      .attr("r", explosionRadius);
+  d3.select('#ninja')
+    .transition()
+      .duration(halfTime)
+      .attr("height", explosionRadius*2)
+      .attr("width", explosionRadius*2);
+  d3.select('#ninjaImg')
+    .transition()
+      .duration(halfTime)
+      .attr("height", explosionRadius*2)
+      .attr("width", explosionRadius*2);
+
+  // then implode (reverse process)
+  setTimeout(function() {
+    player
+        .transition()
+          .duration(halfTime)
+          .attr("r", radius);
+      d3.select('#ninja')
+        .transition()
+          .duration(halfTime)
+          .attr("height", radius*2)
+          .attr("width", radius*2);
+      d3.select('#ninjaImg')
+        .transition()
+          .duration(halfTime)
+          .attr("height", radius*2)
+          .attr("width", radius*2);
+  }, halfTime);
+  setTimeout(function() {
+    d3.select('#ninjaImg')
+        .attr("xlink:href", "img/NinjaBird.png");
+  }, 2*halfTime);
+
+};
 
 
 
