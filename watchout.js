@@ -17,46 +17,53 @@ var svg = d3.select(".gameboard").append("svg")
     .attr("height", height)
   .append("g");
 
+// svg.append("circle")
+//   .attr("r", 10)
+//   .attr("class", "enemy")
+//   .attr("cx", 20)
+//   .attr("cy", 20);
+
 var buildEnemies = function(n) {
 
   var enemies = [];
   for (var i = 0 ; i < n ; i++) {
-    enemies.push(i);
+    enemies.push(randomLocation());
   }
   return enemies;
 
 };
 
-var enemies = buildEnemies(enemyCount);
-
 var updateEnemies = function(data) {
+  // Join new data with old elements, if any
   var enemies = svg.selectAll("circle")
-    .data(data)
-    .attr("r", 10)
-    .attr("class", "enemy")
-    .attr("cy", function(d, i) {
-      return randomLocation().y
-    })
+    .data(data);
+
+  // update
+  enemies.transition().duration(900)
     .attr("cx", function(d, i) {
-      return randomLocation().x
+      return d.x;
+    })
+    .attr("cy", function(d, i) {
+      return d.y;
     });
 
-
+  // add new
+  // elements with data but without dom node
   enemies.enter().append("circle")
     .attr("r", 10)
     .attr("class", "enemy")
-    .attr("cy", function(d, i) {
-      return randomLocation().y
-    })
     .attr("cx", function(d, i) {
-      return randomLocation().x
+      return d.x;
+    })
+    .attr("cy", function(d, i) {
+      return d.y;
     });
 
 };
 
-updateEnemies(enemies);
+updateEnemies(buildEnemies(enemyCount));
 setInterval(function () {
-  updateEnemies(enemies);
+  updateEnemies(buildEnemies(enemyCount));
 }, 1000);
 
 
